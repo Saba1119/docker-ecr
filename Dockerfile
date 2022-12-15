@@ -11,7 +11,6 @@ ADD . /app
 ## We specify that we now wish to execute 
 ## any further commands inside our /app
 ## directory
-VOLUME /var/lib/docker
 WORKDIR /app
 ## we run go build to compile the binary
 ## executable of our Go program
