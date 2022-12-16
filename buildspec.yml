@@ -9,8 +9,8 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...          
-      - docker build -t goapp:latest .
-      - docker tag goapp:latest 554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:new  
+      - docker build -t goapp:new .
+      - docker tag goapp:new 554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:new  
   post_build:
     commands:
       - echo Build completed on `date`
