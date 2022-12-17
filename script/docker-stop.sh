@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "updating file permissions"
+echo "stopping docker"
