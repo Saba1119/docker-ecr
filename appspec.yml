@@ -5,14 +5,14 @@ files:
     destination: /home/ubuntu/goapp/
 hooks:
   DockerStop:
-    - location: script/docker-stop.sh
+    - location: script/application-stop.sh
       timeout: 60
       runas: root
   DockerPull:
-    - location: script/docker-pull.sh
+    - location: script/after-install.sh
       timeout: 60
       runas: root
   DockerStart:
-    - location: script/docker-start.sh
+    - location: script/application-start.sh
       timeout: 60
       runas: root
