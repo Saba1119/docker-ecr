@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: main.go
+  - source: /
     destination: /home/ubuntu/goapp/
 hooks:
   DockerStop:
