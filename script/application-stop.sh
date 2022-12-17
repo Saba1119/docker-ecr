@@ -1,5 +1,4 @@
-
-
 #!/bin/bash
-echo "stopping go application"
-ps -ef | grep main | grep -v grep | awk '{print $2}' | xargs kill
+echo "stopping docker"
+docker stop newrun
+docker rm d=newrun
