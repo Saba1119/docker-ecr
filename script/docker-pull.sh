@@ -1,2 +1,3 @@
-
+#!/bin/bash
+echo "Pulling image"
 docker pull 554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:new
