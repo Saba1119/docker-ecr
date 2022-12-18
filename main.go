@@ -14,7 +14,7 @@ func main() {
 	})
 
 	http.HandleFunc("/hi", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hi - CodeBuildECRCodeDeployEC2")
+		fmt.Fprintf(w, "Hi ")
 	})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
