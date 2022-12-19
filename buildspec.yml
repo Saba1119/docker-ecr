@@ -17,4 +17,5 @@ phases:
       - echo Pushing the Docker image...
       - docker push 554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:demo
 artifacts:
-    files: imagedefinitions.json     
+    files: 
+      - '**/*'
