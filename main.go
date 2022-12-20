@@ -9,14 +9,9 @@ import (
 
 func main() {
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Docker, %q", html.EscapeString(r.URL.Path))
+	http.HandleFunc( func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "aws fargate , %q", html.EscapeString(r.URL.Path))
 	})
-
-	http.HandleFunc("/hi", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hi ")
-	})
-
 	log.Fatal(http.ListenAndServe(":8081", nil))
 
 }
