@@ -4,19 +4,23 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 554248189203.dkr.ecr.us-east-1.amazonaws.com
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 554248189203.dkr.ecr.us-east-1.amazonaws.com
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...          
-      - docker build -t goapp:demo .
-      - docker tag goapp:demo 554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:demo
+      - docker build -t $APP_NAME:$IMAGE_TAG .
+      - docker tag $APP_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - docker push 554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:demo
-      - printf '[{"name":"demo-faragte-goapp","imageUri":"554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:demo"}]' >imagedefinitions.json
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
     files: 
       - '**/*'
+
+     
+      
