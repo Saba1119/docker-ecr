@@ -16,7 +16,7 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker push 554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:demo
-      - printf '[{"name":"goapp","imageUri":"554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:demo"}]' >imagedefinitions.json
+      - printf '[{"name":"demo-faragte-goapp","imageUri":"554248189203.dkr.ecr.us-east-1.amazonaws.com/goapp:demo"}]' >imagedefinitions.json
 artifacts:
     files: 
       - '**/*'
