@@ -9,8 +9,6 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...   
-      - docker --version
-      - sudo dockerd
       - docker build -t $APP_NAME:$IMAGE_TAG .
       - docker tag $APP_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
   post_build:
