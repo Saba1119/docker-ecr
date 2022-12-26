@@ -9,6 +9,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...   
+      - sudo dockerd
       - sudo systemctl start docker
       - sudo systemctl enable docker
       - sudo systemctl restart docker
