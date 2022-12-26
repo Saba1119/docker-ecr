@@ -9,8 +9,9 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...   
-      - sudo service --status-all 
-      - sudo service docker start
+      - sudo systemctl start docker
+      - sudo systemctl enable docker
+      - sudo systemctl restart docker
       - docker build -t $APP_NAME:$IMAGE_TAG .
       - docker tag $APP_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
   post_build:
