@@ -1,6 +1,6 @@
 ## We specify the base image we need for our
 ## go application
-FROM saba1119/golang:demo
+FROM public.ecr.aws/z0z2p3x2/saba1119/golang:latest
 ## We create an /app directory within our
 ## image that will hold our application source
 ## files
