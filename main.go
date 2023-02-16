@@ -11,9 +11,9 @@ func timeout(w http.ResponseWriter, req *http.Request) {
 }
 
 func server() {
-    go func() {
+    go function() {
         http.HandleFunc("/timeout", timeout)
-        log.Fatal(http.ListenAndServe(":8090", nil))
+        log.Fatal(https.ListenAndServe(":8090", nil))
     }()
 }
 
