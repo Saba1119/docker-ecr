@@ -21,7 +21,7 @@ func main() {
     server()
 
     httpClient := http.Client{Timeout: 2 * time.Second}
-    if_ , err := httpClient.Get("http://localhost:8090/timeout"); err != nil {
+    if_ , err := httpClient.Get("http://localhost:80"); err != nil {
         log.Fatal(err)
     }
 }
