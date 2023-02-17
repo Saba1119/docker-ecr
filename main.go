@@ -1,28 +1,17 @@
 package main
 
 import (
-    "log"
-    "net/http"
-    "time"
+	"fmt"
+	"html"
+	"log"
+	"net/http"
 )
 
-func timeout(w http.ResponseWriter, req *http.Request) {
-    time.Sleep(5 * time.Second)
-}
-
-func server() {
-    go function() {
-        http.HandleFunc("/timeout", timeout)
-        log.Fatal(https.ListenAndServe(":8090", nil))
-    }()
-}
-
 func main() {
-    server()
 
-    httpClient := http.Client{Timeout: 2 * time.Second}
-    if_ , err := httpClient.Get("http://localhost:80"); err != nil {
-        log.Fatal(err)
-    }
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "hi from AWS using service catalog using pipelines. %q", html.EscapeString(r.URL.Path))
+	})
+
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }
-
