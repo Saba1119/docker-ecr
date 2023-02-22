@@ -25,9 +25,6 @@ phases:
   
   post_build:
     commands:
-      - sonar_link=$(cat SonarCloud_scanreport.json | grep "you can browse http://[^, ]+")
-      - sonar_task_id=$(cat SonarCloud_scanreport.json | grep "task\?id=[^ ]+" | cut -d'=' -f2)
-      # Allow time for SonarCloud background task to complete
       - |
         stat="PENDING";
         while [ "$stat" != "SUCCESS" ]; do
