@@ -7,7 +7,7 @@ FROM public.ecr.aws/z0z2p3x2/saba1119/golang:1
 RUN mkdir /app
 ## We copy everything in the root directory
 ## into our /app directory
-ADD . /app
+COPY . /app
 ## We specify that we now wish to execute 
 ## any further commands inside our /app
 ## directory
