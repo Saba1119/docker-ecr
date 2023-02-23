@@ -29,9 +29,9 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Validating the Dockerfile using Hadolint tool...
-      - /bin/hadolint docker_files/Dockerfile
+      - /bin/hadolint Dockerfile
       - echo Using Checkov tool for scanning the Dockerfile...
-      - checkov -f docker_files/Dockerfile
+      - checkov -f Dockerfile
 
   post_build:
     commands:
