@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+    pre_build:
+        commands:
+        - apt update
+        - apt install apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y
+        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+        - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        - apt install docker-ce -y
+        - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+        - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+    build:
+        commands:
+        - echo "Build started"
+        - echo "Scanning with OWASP..." 
+        - docker run -i owasp/zap2docker-stable zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://testphp.vulnweb.com/ > result.txt       
+    post_build:
+        commands:
+        - echo "DAST Results"
+        - cat result.txt
+        #- echo $result | jq . 
+        - echo Build completed
