@@ -13,11 +13,12 @@ phases:
         - curl https://bootstrap.pypa.io/get-pip.py | python3
         - pip3 install --upgrade zapcli
         - which zap-cli
+        - export PATH="/root/.pyenv/shims/zap-cli:$PATH"
     build:
         commands:
         - echo "Build started"
         - echo "Scanning with OWASP..." 
-        - docker run -i owasp/zap2docker-stable zap-cli --zap-path /.pyenv/shims/zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://testphp.vulnweb.com/ > result.txt       
+        - docker run -i owasp/zap2docker-stable zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://testphp.vulnweb.com/ > result.txt       
     post_build:
         commands:
         - echo "DAST Results"
