@@ -10,6 +10,8 @@ phases:
         - apt install docker-ce -y
         - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
         - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+        - curl https://bootstrap.pypa.io/get-pip.py | python3
+        - pip3 install --upgrade zapcli
     build:
         commands:
         - echo "Build started"
