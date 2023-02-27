@@ -20,7 +20,10 @@ phases:
         - echo "Build started"
         - echo "Scanning with OWASP..." 
         - export PATH="/root/.pyenv/shims/zap-cli:$PATH"
-        - docker run -i owasp/zap2docker-bare zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://testphp.vulnweb.com/ > result.txt       
+        - docker run -i owasp/zap2docker-bare 
+        - zap-cli start
+        - zap-cli status
+        - zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://testphp.vulnweb.com/ > result.txt       
     post_build:
         commands:
         - echo "DAST Results"
