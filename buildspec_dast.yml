@@ -18,15 +18,13 @@ phases:
     build:
         commands:
         - echo "Build started"
-        - echo "Scanning with OWASP..." 
-        - export PATH="/root/.pyenv/shims/zap-cli:$PATH"
-        - export ZAP_PATH=/usr/local/bin/zap.sh
-        - docker run -i owasp/zap2docker-bare 
-        - export ZAP_PATH=/zap
-        - zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://testphp.vulnweb.com/ > result.txt       
+        - echo "installing OWASP..." 
+        - snap install zaproxy --classic
+        - zaproxy -version
+        - zaproxy -cmd -quickurl https://google.com -quickprogress -quickout ~/result.json
     post_build:
         commands:
         - echo "DAST Results"
-        - cat result.txt
+        - cat result.json
         #- echo $result | jq . 
         - echo Build completed
