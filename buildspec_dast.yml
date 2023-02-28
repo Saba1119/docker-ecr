@@ -5,6 +5,7 @@ phases:
         commands:
         - echo "Build started"
         - echo "installing OWASP..." 
+        - apt update -y
         - apt install snapd
         - snap install zaproxy --classic
         - zaproxy -version
