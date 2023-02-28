@@ -22,7 +22,7 @@ phases:
         - export PATH="/root/.pyenv/shims/zap-cli:$PATH"
         - export ZAP_PATH=/usr/local/bin/zap.sh
         - docker run -i owasp/zap2docker-bare 
-        - export ZAP_PATH=/usr/local/bin/zap.sh
+        - export ZAP_PATH=/zap
         - zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://testphp.vulnweb.com/ > result.txt       
     post_build:
         commands:
