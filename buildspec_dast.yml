@@ -19,7 +19,6 @@ phases:
         - apt install snapd -y
         - systemctl unmask snapd.service
         - systemctl enable snapd.service
-        - systemctl status snapd.service
         - systemctl start snapd.service
         - snap install zaproxy --classic
         - zaproxy -version
