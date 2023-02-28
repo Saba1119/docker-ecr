@@ -17,6 +17,7 @@ phases:
         - echo "installing OWASP..." 
         - apt update -y
         - apt install snapd -y
+        - apt install systemd -y 
         - systemctl unmask snapd.service
         - systemctl enable snapd.service
         - systemctl start snapd.service
