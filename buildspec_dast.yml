@@ -2,6 +2,7 @@ version: 0.2
 phases:
     build:
         commands:
+        - Set-ExecutionPolicy RemoteSigned -scope CurrentUser
         - iwr -useb get.scoop.sh | iex
         - scoop install zaproxy
         - zaproxy -version
