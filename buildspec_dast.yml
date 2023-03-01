@@ -2,9 +2,7 @@ version: 0.2
 phases:
     build:
         commands:
-        - Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-        - iwr -useb get.scoop.sh | iex
-        - scoop install zaproxy
+        - docker run -it owasp/zap2docker-stable:latest /bin/bash -c "pip install wait-for-it"
         - zaproxy -version
         - zaproxy -cmd -quickurl https://google.com -quickprogress -quickout ~/result.json
     post_build:
