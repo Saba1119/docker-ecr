@@ -10,7 +10,7 @@ phases:
         - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
         - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
         - curl https://bootstrap.pypa.io/get-pip.py | python3
-        - docker run -t owasp/zap2docker-stable zap-baseline.py -t https://google.com
+        - docker run -t owasp/zap2docker-stable zap-baseline.py -t https://example.com
     post_build:
         commands:
         - echo "DAST Results"
