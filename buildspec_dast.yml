@@ -10,7 +10,7 @@ phases:
         - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
         - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
         - curl https://bootstrap.pypa.io/get-pip.py | python3
-        - docker run -it owasp/zap2docker-stable:latest /bin/bash -c "pip install wait-for-it"
+        - docker run -i owasp/zap2docker-stable:latest /bin/bash -c "pip install wait-for-it"
         - zaproxy -version
         - zaproxy -cmd -quickurl https://google.com -quickprogress -quickout ~/result.json
     post_build:
