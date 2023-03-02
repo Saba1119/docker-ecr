@@ -9,7 +9,7 @@ phases:
         - apt install docker-ce -y
         - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
         - curl https://bootstrap.pypa.io/get-pip.py | python3
-        - docker run -t owasp/zap2docker-stable zap-baseline.py -t https://example.com
+        - docker run -t owasp/zap2docker-stable zap-baseline.py -t https://swath-Appli-SEQA3I8565XM-832296749.us-east-1.elb.amazonaws.com
     post_build:
         commands:
         - echo "DAST Results"
