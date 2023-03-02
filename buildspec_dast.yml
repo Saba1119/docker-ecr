@@ -13,5 +13,5 @@ phases:
         - chmod 777 $PWD
         - mkdir -p /zap/wrk
         - chmod 777 /zap/wrk      
-        - docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -t https://ugagcfitjh.execute-api.us-east-1.amazonaws.com/dev/hello -c passive-scan.conf -J owaspresult.json 
+        - docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-baseline.py -t https://ugagcfitjh.execute-api.us-east-1.amazonaws.com/dev/hello -c passive-scan.conf -J owaspresult.json 
         - echo Build completed
