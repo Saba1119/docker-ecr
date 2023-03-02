@@ -9,10 +9,6 @@ phases:
         - apt install docker-ce -y
         - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
         - curl https://bootstrap.pypa.io/get-pip.py | python3
-        - docker run -t owasp/zap2docker-stable zap-baseline.py -t http://swath-Appli-SEQA3I8565XM-832296749.us-east-1.elb.amazonaws.com
-    post_build:
-        commands:
-        - echo "DAST Results"
-        - cat result.json
-        #- echo $result | jq . 
+        - docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py  -t http://swath-appli-seqa3i8565xm-832296749.us-east-1.elb.amazonaws.com/ -g gen.conf -J testreport.json
+        - cat testreport.json
         - echo Build completed
