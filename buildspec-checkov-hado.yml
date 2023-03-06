@@ -32,7 +32,7 @@ phases:
       - /bin/hadolint Dockerfile
       - echo Using Checkov tool for scanning the Dockerfile...
       - checkov -f Dockerfile
-      - checkov -f Password.yml
+      - checkov -f .
 
   post_build:
     commands:
