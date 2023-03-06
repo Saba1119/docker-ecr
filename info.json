@@ -1,3 +1,8 @@
-aws_access_key_id=AWQAYCC6EGGHZWML401
-aws_secret_access_key=w/r/wQaJfzcCZ15BuZLb+bxGkDFfdgHmIY8uVu54h
-aws_session_token=IQoJb3JpCVEX
+{
+  "engine": "mysql",
+  "host": "demo",
+  "username": "dummy",
+  "password": "hi",
+  "dbname": "test",
+  "port": "3306"
+}
