@@ -22,6 +22,7 @@ phases:
       - cd $CODEBUILD_SRC_DIR
       - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.sources=. -Dproject.settings=sonar-project.properties -Dsonar.host.url=$SonarCloud_URL -Dsonar.login=$SonarCloud_Access_Token -Dsonar.projectKey=saba1119_devsecops  -Dsonar.organization=saba1119 > SonarCloud_scanreport.json
       - echo "build stage completed"
+      - echo ${{ github.sha }}
       - cat SonarCloud_scanreport.json
 artifacts:
   files: 
