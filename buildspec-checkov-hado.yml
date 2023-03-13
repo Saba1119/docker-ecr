@@ -24,8 +24,8 @@ phases:
       - echo Validating the Dockerfile using Hadolint tool...
       - /bin/hadolint Dockerfile
       - echo Using Checkov tool for scanning the Dockerfile...
-      - checkov -f Dockerfile
-      - checkov -d .
+      - checkov -d . -o checkov.json
+      - cat checkov.json
 
   post_build:
     commands:
