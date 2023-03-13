@@ -17,5 +17,5 @@ phases:
         - echo Build completed
         - cat owaspresult.json
         - apt-get update -y && apt-get -y install jq python3-pip python3-dev && pip3 install --upgrade awscli
-        - aws s3 cp owaspresult.json s3://ragul-test-report/$CODEBUILD_RESOLVED_SOURCE_VERSION.json
+        - aws s3 cp owaspresult.json s3://sasttestgokul-bucket/DAST-$CODEBUILD_RESOLVED_SOURCE_VERSION.json
  
