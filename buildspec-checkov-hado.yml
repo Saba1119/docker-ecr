@@ -33,3 +33,4 @@ phases:
 artifacts:
   files: 
     - 'checkov.json'
+  name: builds/$CommitId  
