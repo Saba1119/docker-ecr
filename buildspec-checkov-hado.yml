@@ -30,6 +30,7 @@ phases:
   post_build:
     commands:
       - echo Build completed on `date`
+      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
 artifacts:
   files: 
     - 'checkov.json'
