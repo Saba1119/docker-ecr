@@ -23,6 +23,10 @@ phases:
       - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.sources=. -Dproject.settings=sonar-project.properties -Dsonar.host.url=$SonarCloud_URL -Dsonar.login=$SonarCloud_Access_Token -Dsonar.projectKey=saba1119_devsecops  -Dsonar.organization=saba1119 > SonarCloud_scanreport.json
       - echo "build stage completed"
       - cat SonarCloud_scanreport.json
-artifacts:
-  files: 
-    - 'SonarCloud_scanreport.json'
+      - apt-get update -y && apt-get -y install jq python3-pip python3-dev && pip3 install --upgrade awscli
+      - aws s3 cp SonarCloud_scanreport.json s3://ragul-test-report/$CODEBUILD_RESOLVED_SOURCE_VERSION.json
+      
+      
+  post_build:
+    commands:
+      - echo Build completed on `date`     
