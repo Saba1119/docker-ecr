@@ -16,6 +16,6 @@ phases:
         - docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -t $ApplicationURL -j  -c passive-scan.conf -J owaspresult.json 
         - echo Build completed
         - cat owaspresult.json
-artifacts:
-  files: 
-    - 'owaspresult.json'
+        - apt-get update -y && apt-get -y install jq python3-pip python3-dev && pip3 install --upgrade awscli
+        - aws s3 cp owaspresult.json s3://ragul-test-report/$CODEBUILD_RESOLVED_SOURCE_VERSION.json
+ 
