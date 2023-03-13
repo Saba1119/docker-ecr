@@ -33,4 +33,4 @@ phases:
 artifacts:
   files: 
     - 'checkov.json'
-  name: builds/$CommitId  
+  name:$CODEBUILD_RESOLVED_SOURCE_VERSION
