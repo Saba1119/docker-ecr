@@ -18,5 +18,7 @@ RUN go build -o main .
 ## Our start command which kicks off
 ## our newly created binary executable
 CMD ["/app/main"]
+USER node
+HEALTHCHECK NONE
 
 
