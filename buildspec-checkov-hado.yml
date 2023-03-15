@@ -24,6 +24,7 @@ phases:
       - echo Validating the Dockerfile using Hadolint tool...
       - /bin/hadolint Dockerfile
       - echo Using Checkov tool for scanning the Dockerfile...
+      - checkov -f Dockerfile
       - checkov -d . -o json > checkov.json
       - cat checkov.json
       - apt-get update -y && apt-get -y install jq python3-pip python3-dev && pip3 install --upgrade awscli
