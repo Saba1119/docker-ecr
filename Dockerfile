@@ -1,6 +1,6 @@
 ## We specify the base image we need for our
 ## go application
-FROM public.ecr.aws/z0z2p3x2/saba1119/golang:latest
+FROM public.ecr.aws/z0z2p3x2/saba1119/golang:1
 ## We create an /app directory within our
 ## image that will hold our application source
 ## files
@@ -18,6 +18,5 @@ RUN go build -o main .
 ## Our start command which kicks off
 ## our newly created binary executable
 CMD ["/app/main"]
-USER node
-HEALTHCHECK NONE
+
 
