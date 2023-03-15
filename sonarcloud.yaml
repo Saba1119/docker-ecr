@@ -1,0 +1,469 @@
+  AWSTemplateFormatVersion: "2010-09-09"
+  Description:  >
+    This template creates a CICD DevSecOps pipeline with AWS cloud services and 
+    open source SAST and DAST tools for Source code and Application vulnerablity Analysis.
+  Parameters:
+    Name:
+      Type: String
+    SonarCloudScanToken:
+      Description: SonarCloud scanning token
+      Type: String
+      NoEcho: true
+    SonarCloudURLName:
+      Description: SonarCloud SAST tool URL
+      Type: String
+    SASTTool:
+      Description: Select the SAST tool 
+      Type: String
+      AllowedValues: [SonarCloud]
+    DASTTool:
+      Description: Select the DAST tool 
+      Type: String
+      AllowedValues: [OWASP-Zap]
+    ApplicationURLForDASTScan:
+      Description: Application URL to run the DAST/Pen testing 
+      Type: String
+    GitHubAuthToken:
+      Description: GitHub access token.
+      Type: String
+    RepoOwner:
+      Description: Name of the GitHub user or org who owns the repository.
+      Type: String
+    RepoName:
+      Description: The GitHub repo name.
+      Type: String
+    BranchName:
+      Description: Name of repo branch to watch.
+      Type: String
+    
+  #### Parameter Groups, Labels
+  Metadata:
+    'AWS::CloudFormation::Interface':
+      ParameterGroups:
+      - Label:
+           default: Name
+        Parameters: 
+        - Name
+      - Label:
+          default: SAST
+        Parameters:
+        - SASTTool
+        - SonarCloudScanToken
+        - SonarCloudURLName
+      - Label:
+          default: DAST
+        Parameters:
+        - DASTTool
+        - ApplicationURLForDASTScan
+      - Label:
+          default: Github 
+        Parameters:
+        - GitHubAuthToken
+        - RepoOwner
+        - RepoName
+        - BranchName
+      
+
+    ParameterLabels:
+      Name: 
+          default: Name for the stack
+      SASTTool:
+          default: Select SAST tool
+      SonarCloudURLName:
+          default: SonarCloud URL name
+      SonarCloudScanToken:
+          default: SonarCloud API authentication token
+      DASTTool:
+          default: Select DAST tool
+      ApplicationURLForDASTScan:
+          default: STG Application web URL
+      
+  Conditions:
+    ScanWith_SonarCloud: !Equals [ !Ref SASTTool, "SonarCloud" ]
+    ScanWith_OWASP-ZAP: !Equals [ !Ref DASTTool, "OWASP-Zap" ]
+
+  Resources:
+
+    ### SSM ParameterStore entry to store sensitive information
+    SSMParameterForSonar:
+      Type: 'AWS::SSM::Parameter'
+      Condition: ScanWith_SonarCloud
+      Properties:
+        Name: !Join [ "-", [ !Ref Name, "SonarCloud-Token"] ]
+        Type: StringList 
+        Value: !Ref SonarCloudScanToken
+
+    SSMParameterSonarCloudURL:
+      Type: 'AWS::SSM::Parameter'
+      Condition: ScanWith_SonarCloud
+      Properties:
+        Name: !Join [ "-", [ !Ref Name, "SonarCloudURL"] ]
+        Type: StringList 
+        Value: !Ref SonarCloudURLName
+
+    SSMParameterAppURL:
+      Type: 'AWS::SSM::Parameter'
+      Properties:
+        Name: !Join [ "-", [ !Ref Name, "Application-URL"] ]
+        Type: StringList 
+        Value: !Ref ApplicationURLForDASTScan
+
+    ### CloudWatch LogGroup for storing pipeline logs
+    CloudWatchLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties: 
+        LogGroupName: !Join [ "-", [ !Ref Name, "pipeline-logs"] ]
+        RetentionInDays: 7    
+        
+    ### S3 bucket to store build artifacts
+    CodePipelineArtifactStoreBucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: !Join [ "-", [ !Ref Name, "bucket"] ]
+        Tags:
+          - Key: pipeline-name
+            Value: !Sub ${AWS::StackName}-pipeline
+    
+    ### S3bucket poilicy to deny if server side encryption is not enabled or if transport security (SSL/TLS) is not enabled 
+    CodePipelineArtifactStoreBucketPolicy:
+      Type: 'AWS::S3::BucketPolicy'
+      Properties:
+        Bucket: !Ref CodePipelineArtifactStoreBucket
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: DenyUnEncryptedObjectUploads
+              Effect: Deny
+              Principal: '*'
+              Action: 's3:PutObject'
+              Resource: !Join 
+                - ''
+                - - !GetAtt 
+                    - CodePipelineArtifactStoreBucket
+                    - Arn
+                  - /*
+              Condition:
+                StringNotEquals:
+                  's3:x-amz-server-side-encryption': 'aws:kms'
+            - Sid: DenyInsecureConnections
+              Effect: Deny
+              Principal: '*'
+              Action: 's3:*'
+              Resource: !Join 
+                - ''
+                - - !GetAtt 
+                    - CodePipelineArtifactStoreBucket
+                    - Arn
+                  - /*
+              Condition:
+                Bool:
+                  'aws:SecureTransport': false
+
+    AppPipeline:
+      Type: 'AWS::CodePipeline::Pipeline'
+      Properties:
+        Name: !Join [ "-", [ !Ref Name, "pipeline"] ]
+        RoleArn: !GetAtt 
+          - PipelineServiceRole
+          - Arn
+        Stages:
+          - Name: Source
+            Actions:
+              - Name: Source
+                ActionTypeId:
+                  Version: 1
+                  Category: Source
+                  Owner: ThirdParty
+                  Provider: GitHub
+                OutputArtifacts:
+                  - Name: SourceOutput
+                Configuration:
+                  Owner: !Ref RepoOwner
+                  Repo: !Ref RepoName
+                  Branch: !Ref BranchName
+                  OAuthToken: !Ref GitHubAuthToken
+                RunOrder: 1
+          
+          ### Build stage for SAST analysis with SonarCloud or Phpstan          
+          - Name: SCA-and-SAST-Analysis
+            Actions:
+              - Name: SCAnalysis
+                InputArtifacts:
+                  - Name: SourceOutput
+                ActionTypeId:
+                  Category: Test
+                  Owner: AWS
+                  Version: '1'
+                  Provider: CodeBuild
+                OutputArtifacts: 
+                  - Name: SCAArtifacts
+                Configuration:
+                  ProjectName: !Ref SCABuildProject
+                RunOrder: 2
+              - Name: SASTAnalysis
+                InputArtifacts:
+                  - Name: SourceOutput
+                ActionTypeId:
+                  Category: Build
+                  Owner: AWS
+                  Version: '1'
+                  Provider: CodeBuild
+                OutputArtifacts: 
+                  - Name: SASTArtifacts
+                Configuration:
+                  ProjectName: !Ref SASTBuildProject
+                RunOrder: 2
+     
+          ### Manual approval change
+          - Name: Manual-Approval
+            Actions:
+              - Name: ApprovalRequired2
+                ActionTypeId:
+                  Category: Approval
+                  Owner: AWS
+                  Version: '1'
+                  Provider: Manual
+                Configuration:
+                  CustomData: There are no critical security vulnerabilities.Approval is needed.
+                RunOrder: 3
+
+          - Name: DAST-Analysis
+            Actions:
+              - Name: DASTAnalysis
+                InputArtifacts:
+                  - Name: SourceOutput
+                ActionTypeId:
+                  Category: Test
+                  Owner: AWS
+                  Version: '1'
+                  Provider: CodeBuild
+                Configuration:
+                  ProjectName: !Ref DASTBuildProject
+                RunOrder: 4
+        
+        ### Store build artifacts in S3 bucket
+        ArtifactStore:
+          Type: S3
+          Location: !Ref CodePipelineArtifactStoreBucket
+          # EncryptionKey: 
+          #   Id: !GetAtt PipelineKMSKey.Arn
+          #   Type: KMS
+        Tags:
+          - Key: pipeline-name
+            Value: !Sub ${AWS::StackName}-pipeline  
+
+    #### SCA Analysis Build Project
+    SCABuildProject:
+      Type: AWS::CodeBuild::Project
+      Properties:
+        Description: Software Composite Analysis Build Project
+        Artifacts:
+          Type: CODEPIPELINE
+        # EncryptionKey: !GetAtt PipelineKMSKey.Arn
+        Environment:
+          ComputeType: BUILD_GENERAL1_SMALL
+          Image: aws/codebuild/standard:4.0
+          Type: LINUX_CONTAINER
+          PrivilegedMode: true
+        ServiceRole: !Ref 'StaticCodeAnalysisServiceRole'
+        Source:
+          Type: CODEPIPELINE
+          BuildSpec: buildspec-checkov-hado.yml 
+        LogsConfig:
+            CloudWatchLogs:
+              GroupName: !Ref CloudWatchLogGroup
+              Status: ENABLED
+              StreamName: SCAnalysis
+        QueuedTimeoutInMinutes: 10
+        Tags:
+          - Key: pipeline-name
+            Value: !Sub ${AWS::StackName}-pipeline 
+
+    #### SAST amalysis codebuild project
+    SASTBuildProject:
+      Type: AWS::CodeBuild::Project
+      Properties:
+        Description: Static Code Analysis Build Project
+        Artifacts:
+          Type: CODEPIPELINE
+        # EncryptionKey: !GetAtt PipelineKMSKey.Arn
+        Environment:
+          ComputeType: BUILD_GENERAL1_SMALL
+          Image: aws/codebuild/standard:4.0
+          Type: LINUX_CONTAINER
+          EnvironmentVariables:   ## adding environment variable from SSM parameter
+            'Fn::If':
+              - ScanWith_SonarCloud
+              -
+                - Name: SonarCloud_Access_Token
+                  Type: PARAMETER_STORE
+                  Value: !Ref SSMParameterForSonar
+                - Name: SonarCloud_URL
+                  Type: PARAMETER_STORE
+                  Value: !Ref SSMParameterSonarCloudURL
+              - !Ref "AWS::NoValue"
+          PrivilegedMode: true
+        ServiceRole: !Ref 'StaticCodeAnalysisServiceRole'
+        Source:
+          Type: CODEPIPELINE
+          BuildSpec: 
+            Fn::If:
+              - ScanWith_SonarCloud ### If selected SAST tool is SonarCloud it will load buildspec_SonarCloud.yml 
+              - buildspec_SonarCloud.yml
+              - buildspec-phpstan.yml 
+        LogsConfig:
+            CloudWatchLogs:
+              GroupName: !Ref CloudWatchLogGroup
+              Status: ENABLED
+              StreamName: SASTAnalysis
+        QueuedTimeoutInMinutes: 10
+        Tags:
+          - Key: pipeline-name
+            Value: !Sub ${AWS::StackName}-pipeline                  
+    
+    #### DAST analysis codebuild project
+    DASTBuildProject:
+      Type: AWS::CodeBuild::Project
+      Properties:
+        Description: Dynamic Code Analysis Build Project
+        Artifacts:
+          Type: CODEPIPELINE
+        Environment:
+          ComputeType: BUILD_GENERAL1_SMALL
+          Image: aws/codebuild/standard:4.0
+          Type: LINUX_CONTAINER
+          PrivilegedMode: true
+          EnvironmentVariables:   ## adding environment variable from SSM parameter
+              - Name: ApplicationURL
+                Type: PARAMETER_STORE
+                Value: !Ref SSMParameterAppURL
+        ServiceRole: !Ref 'StaticCodeAnalysisServiceRole'
+        Source:
+          Type: CODEPIPELINE
+          BuildSpec: 
+            Fn::If:
+              - ScanWith_OWASP-ZAP ### If selected SAST tool is SonarCloud it will load buildspec_SonarCloud.yml if not, it will load buildspec_phpstan.yml
+              - buildspec_dast.yml
+              - buildspec-qualys.yml
+        LogsConfig:
+            CloudWatchLogs:
+              GroupName: !Ref CloudWatchLogGroup
+              Status: ENABLED
+              StreamName: DASTAnalysis
+        QueuedTimeoutInMinutes: 10
+        Tags:
+          - Key: pipeline-name
+            Value: !Sub ${AWS::StackName}-pipeline       
+        
+
+    ###StaticCode Analysis ServiceRole
+    StaticCodeAnalysisServiceRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: sts:AssumeRole
+              Principal:
+                Service:
+                  - codebuild.amazonaws.com
+        Policies:
+          - PolicyName: SecurityCodeAnalysisPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action: iam:PassRole
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - iam:PassRole
+                    - logs:*
+                    - s3:*
+                    - cloudformation:*
+                    - cloudwatch:*
+                    - cloudtrail:*
+                    - codebuild:*
+                    - codecommit:*
+                    - codepipeline:*
+                    - ssm:*
+                    - lambda:*
+                    - kms:*
+                    - ecr:*
+                  Resource: '*'
+        Path: /
+        RoleName: !Join
+          - '-'
+          - - !Ref 'AWS::StackName'
+            - SecurityCodeAnalysisRole
+
+    PipelineServiceRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - codepipeline.amazonaws.com
+              Action: 'sts:AssumeRole'
+        Path: /
+        Policies:
+          - PolicyName: !Sub ${AWS::StackName}-CodePipeline-Servicepolicy
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 'codedeploy:CreateDeployment'
+                    - 'codedeploy:GetApplicationRevision'
+                    - 'codedeploy:GetDeployment'
+                    - 'codedeploy:GetDeploymentConfig'
+                    - 'codedeploy:RegisterApplicationRevision'
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - 'codebuild:BatchGetBuilds'
+                    - 'codebuild:StartBuild'
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - 'devicefarm:ListProjects'
+                    - 'devicefarm:ListDevicePools'
+                    - 'devicefarm:GetRun'
+                    - 'devicefarm:GetUpload'
+                    - 'devicefarm:CreateUpload'
+                    - 'devicefarm:ScheduleRun'
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - 'iam:PassRole'
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - 'ec2:*'
+                    - 'elasticloadbalancing:*'
+                    - 'autoscaling:*'
+                    - 'cloudwatch:*'
+                    - 's3:*'
+                    - 'sns:*'
+                    - 'cloudformation:*'
+                    - 'rds:*'
+                    - 'sqs:*'
+                    - 'logs:*'
+                    - 'kms:*'
+                    - 'ecr:*'
+                    - 'secretsmanager:*'
+                  Resource: '*'
+  
+  ##Outputs
+  Outputs:
+    ArtifactBucketName:
+      Description: The s3 bucket name of the artifact repository with GetAtt function
+      Value: !GetAtt CodePipelineArtifactStoreBucket.Arn
+
+    
+
+    
