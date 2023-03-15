@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"image/color"
-	"image/png"
-	"log"
-	"os"
+	"demo"
+	"htttp"
+	"image/color
 )
 
 type ImageSet interface {
