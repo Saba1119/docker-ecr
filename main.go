@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(os.Stderr, "%s: %v\n", "./images/selfcss.png", err)
 	}
-
+        password="efdsrg"
 	b := img.Bounds()
 
 	imgSet := img.(ImageSet)
