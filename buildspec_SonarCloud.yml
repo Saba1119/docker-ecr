@@ -24,10 +24,10 @@ phases:
       - sleep 5
       - curl -u $SonarCloud_Access_Token https://sonarcloud.io/api/qualitygates/project_status?projectKey=saba1119_devsecops >SonarCloud_scanreport.json
       - cat SonarCloud_scanreport.json
-      - echo "build stage completed"
       - apt-get update -y && apt-get -y install jq python3-pip python3-dev && pip3 install --upgrade awscli
       - aws s3 cp SonarCloud_scanreport.json s3://sasttestgokul-bucket/SAST-$CODEBUILD_RESOLVED_SOURCE_VERSION.json
-      
+      - if [ $(jq -r '.projectStatus.status' result.json) = ERROR ] ; then $CODEBUILD_BUILD_SUCCEEDING -eq 0 ;fi
+      - echo "build stage completed"
       
   post_build:
     commands:
