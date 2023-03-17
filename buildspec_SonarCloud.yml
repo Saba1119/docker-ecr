@@ -21,7 +21,7 @@ phases:
     commands:
       - cd $CODEBUILD_SRC_DIR
       - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.sources=. -Dproject.settings=sonar-project.properties -Dsonar.host.url=$SonarCloud_URL -Dsonar.login=$SonarCloud_Access_Token -Dsonar.projectKey=saba1119_devsecops  -Dsonar.organization=saba1119 -Dsonar.python.coverage.reportPaths >coverage.xml
-      - sonar-scanner -h
+      - /opt/sonar-scanner/bin/sonar-scanner -h
       - cat coverage.xml
       - sleep 5
       - curl -u $SonarCloud_Access_Token https://sonarcloud.io/api/qualitygates/project_status?projectKey=saba1119_devsecops >SonarCloud_scanreport.json
